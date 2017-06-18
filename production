@@ -1,0 +1,17 @@
+[ampache]
+mcdmusic.uk
+
+[webservers]
+mattmakes.uk
+
+[vpn]
+mattmakes.uk
+
+[linux]
+mcdmusic.uk ansible_user=root
+
+[pis]
+192.168.0.9 ansible_user=matt
+
+[dns]
+192.168.0.2 ansible_user=matt

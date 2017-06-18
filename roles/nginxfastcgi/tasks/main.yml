@@ -1,0 +1,93 @@
+- name: Install nginx
+  apt:
+    name: nginx
+    update_cache: yes
+  become: yes
+
+- name: Install php cli
+  apt:
+    name: php-cli
+  become: yes
+
+- name: install setfacl support
+  become: yes
+  apt:
+    name: acl
+
+
+- name: Install php cgi
+  apt:
+    name: php-cgi
+  become: yes
+
+- name: Install mysql
+  apt:
+    name: mysql-server
+  become: yes
+
+
+- name: Install fastcgi
+  apt:
+    name: spawn-fcgi
+  become: yes
+
+
+- name: Install psmisc
+  apt:
+    name: psmisc
+  become: yes
+
+
+- name: Install git
+  apt:
+    name: git
+  become: yes
+
+- name: create fastcgi script
+  template: src=phpfastcgi.j2 dest=/usr/bin/php-fastcgi
+  become: yes
+
+- name: create fastcgi init script
+  template: src=phpfastcgiinit.j2 dest=/etc/init.d/php-fastcgi
+  become: yes
+
+- name: Change permisions on php-fastcgi init script
+  file:
+    path: /etc/init.d/php-fastcgi
+    mode: "u+x,g+x,o+x"
+  become: yes
+
+- name: Change permission on php-fastcgi script
+  file:
+    path: /usr/bin/php-fastcgi
+    mode: "u+x,g+x,o+x"
+  become: yes
+
+- name: Fix /opt permissions
+  file:
+    path: /opt
+    mode: 0777
+  become: yes
+
+- name: install service file
+  copy:
+    src: php-fastcgi.service
+    dest: /etc/systemd/system/php-fastcgi.service
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+
+- name: restart and enable service
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    enabled: True
+    name: php-fastcgi
+  become: yes
+
+- name: Restart nginx
+  service:
+    name: nginx
+    state: restarted
+  become: yes

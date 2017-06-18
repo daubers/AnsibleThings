@@ -1,0 +1,15 @@
+[Unit]
+Description=PHP FastCGI
+After=syslog.target network.target remote-fs.target nss-lookup.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+ExecStart=/usr/bin/php-fastcgi
+Restart=on-failure
+LimitNOFILE=10000
+PIDFile=/var/run/php-fastcgi/php-fastcgi.pid
+
+[Install]
+WantedBy=multi-user.target

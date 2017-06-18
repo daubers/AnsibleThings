@@ -1,0 +1,5 @@
+- name: Set ownership
+  file: path=/opt/music state=directory recurse=yes mode=0777 owner=www-data group=www-data
+
+- name: Run catalog_update
+  shell: "{{ update_command }} {{ flags }}"

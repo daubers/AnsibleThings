@@ -1,0 +1,124 @@
+- name: Install php-gmp
+  apt:
+    name: php-gmp
+  become: yes
+
+- name: Install php-gd
+  apt:
+    name: php-gd
+  become: yes
+
+- name: Install php-curl
+  apt:
+    name: php-curl
+  become: yes
+
+- name: Install php-mcrypt
+  apt:
+    name: php-mcrypt
+  become: yes
+
+- name: Install php-pear
+  apt:
+    name: php-pear
+  become: yes
+
+- name: Install php-mysql
+  apt:
+    name: php-mysql
+  become: yes
+
+- name: Install php-ldap
+  apt:
+    name: php-ldap
+  become: yes
+
+- name: Install python-mysqldb
+  apt:
+    name: python-mysqldb
+  become: yes
+
+- name: Download phpipam
+  git:
+    repo: https://github.com/phpipam/phpipam.git
+    dest: /opt/phpipam
+    force: yes
+  become: yes
+
+- name: Fix /opt/phpipam permissions
+  file:
+    path: /opt/phpipam
+    owner: www-data
+    group: www-data
+    recurse: yes
+  become: yes
+
+- copy:
+    remote_src: True
+    src: /opt/phpipam/config.dist.php
+    dest: /opt/phpipam/config.php
+    owner: www-data
+    group: www-data
+    mode: 0777
+  become: yes
+
+- name: Create a new database with name 'phpipam'
+  mysql_db:
+    name: phpipam
+    state: present
+  become: yes
+
+- mysql_user:
+    name: phpipam
+    password: phpipamadmin
+    priv: '*.*:ALL'
+    state: present
+  become: yes
+
+
+
+- name: Fix /opt/phpipam/logs
+  file:
+    path: /opt/phpipam/logs
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: 0777
+  become: yes
+
+- name: Place nginx config
+  template: src=nginxsite.j2 dest=/etc/nginx/sites-enabled/phpipam
+  become: yes
+
+- name: Remove old nginx config
+  file:
+      state: absent
+      path: "/etc/nginx/sites-enabled/default"
+  become: yes
+
+- name: Restart nginx
+  service:
+    name: nginx
+    state: restarted
+  become: yes
+
+- name: stop fastcgi
+  service:
+    name: php-fastcgi
+    state: stopped
+  become: yes
+
+- name: start fastcgi
+  service:
+    name: php-fastcgi
+    state: started
+  become: yes
+
+- name: install cron for scanning
+  copy:
+    src: phpipamscan
+    dest: /etc/cron.d/phpipamscan
+    owner: root
+    group: root
+    mode: 0644
+  become: yes

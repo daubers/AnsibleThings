@@ -1,0 +1,4 @@
+- name: Rescan ampache music library
+  hosts: ampache
+  roles:
+    - ampache.rescan

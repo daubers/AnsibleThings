@@ -1,0 +1,2 @@
+- authorized_key: user=root key="{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
+  become: yes

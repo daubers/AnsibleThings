@@ -1,0 +1,7 @@
+update_command: "php /var/www/ampache/bin/catalog_update.inc"
+flags_by_name:
+  clean: "-c"
+  verify: "-v"
+  add: "-a"
+  gather_art: "-g"
+flags: "-c -v -a"

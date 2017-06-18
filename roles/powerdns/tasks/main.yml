@@ -1,0 +1,107 @@
+- apt_key:
+    url: "https://repo.powerdns.com/FD380FBB-pub.asc"
+    state: present
+  become: yes
+
+- apt_repository:
+    repo: deb [arch=amd64] http://repo.powerdns.com/ubuntu xenial-auth-40 main
+    state: present
+    filename: 'pdns'
+  become: yes
+
+- name: Drop in pdns apt pinning
+  template:
+    src: pdns.j2
+    dest: /etc/apt/preferences.d/pdns
+  become: yes
+
+- name: Install pdns-server
+  apt:
+    name: pdns-server
+    update_cache: yes
+    state: latest
+  become: yes
+
+- name: Copy pdns recursor conf
+  copy:
+    src: recursor.conf
+    dest: /etc/powerdns/recursor.conf
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+
+- name: Install pdns-recursor
+  apt:
+    name: pdns-recursor
+    update_cache: yes
+    state: latest
+  become: yes
+
+- name: Install mysql-server
+  apt:
+    name: mysql-server
+  become: yes
+
+- name: Install pdns-backend-mysql
+  apt:
+    name: pdns-backend-mysql
+    state: latest
+  become: yes
+
+- name: Install python-mysqldb
+  apt:
+    name: python-mysqldb
+  become: yes
+
+- name: Copy pdns base sql
+  copy:
+    src: pdns_base.sql
+    dest: /tmp/pdns_base.sql
+
+- name: Create a new database with name 'pdns'
+  mysql_db:
+    state: import
+    name: all
+    target: /tmp/pdns_base.sql
+  become: yes
+  ignore_errors: yes
+
+- mysql_user:
+    name: pdns
+    password: pDNSstupidthingywhat
+    priv: '*.*:ALL'
+    state: present
+  become: yes
+
+- name: Drop in pdns mysql config
+  template:
+    src: pdns.local.gmysql.j2
+    dest: /etc/powerdns/pdns.d/pdns.local.gmysql.conf
+  become: yes
+
+- name: Remove pdns.local.conf
+  file:
+    name: /etc/powerdns/pdns.d/pdns.local.conf
+    state: absent
+  become: yes
+
+- name: Remove pdns.simplebind.conf
+  file:
+    name: /etc/powerdns/pdns.d/pdns.simplebind.conf
+    state: absent
+  become: yes
+
+
+
+- name: Restart pdns
+  service:
+    name: pdns
+    state: restarted
+  become: yes
+
+- name: Restart pdns recursor
+  service:
+    name: pdns-recursor
+    state: restarted
+  become: yes

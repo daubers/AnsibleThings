@@ -1,0 +1,2 @@
+*/15 * * * * www-data /usr/bin/php /opt/phpipam/functions/scripts/pingCheck.php
+*/15 * * * * www-data /usr/bin/php /opt/phpipam/functions/scripts/discoveryCheck.php
