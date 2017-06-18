@@ -3,6 +3,11 @@
     name: php-gmp
   become: yes
 
+- name: Install php-mbstring
+  apt:
+    name: php-mbstring
+  become: yes
+
 - name: Install php-gd
   apt:
     name: php-gd

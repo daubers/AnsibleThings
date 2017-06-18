@@ -92,7 +92,17 @@
     state: absent
   become: yes
 
+- name: Remove pdns.conf
+  file:
+    name: /etc/powerdns/pdns.conf
+    state: absent
+  become: yes
 
+- name: Copy pdns conf
+  copy:
+    src: pdns.conf
+    dest: /etc/powerdns/pdns.conf
+  become: yes
 
 - name: Restart pdns
   service:
